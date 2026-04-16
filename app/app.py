@@ -224,4 +224,4 @@ def resolve_logic():
     return jsonify({"new_yield": 92.5, "instruction": "AI PRESCRIPTION: Increase Temperature to 64.3°C."})
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=10000)
