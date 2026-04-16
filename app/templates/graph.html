@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Trend Graph</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<h2>Prediction Trend Graph 📈</h2>
+
+<canvas id="trendGraph"></canvas>
+
+<script>
+async function drawGraph() {
+    const response = await fetch("/data");
+    const data = await response.json();
+
+    const ctx = document.getElementById('trendGraph').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.inputs,
+            datasets: [{
+                label: 'Prediction Trend',
+                data: data.predictions,
+                borderColor: 'blue',
+                fill: false,
+                tension: 0.2
+            }]
+        }
+    });
+}
+
+drawGraph();
+</script>
+
+</body>
+</html>

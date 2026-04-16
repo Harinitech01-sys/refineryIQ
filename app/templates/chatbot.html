@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refinery Sentinel | Neural Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #020804; --emerald: #064e3b; --leaf: #10b981;
+            --gold-premium: #f7e7ce; --gold-deep: #b8860b;
+            --glass: rgba(255, 255, 255, 0.03); --glass-border: rgba(255, 255, 255, 0.08);
+            --transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-deep); color: #fff; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; position: relative; }
+        #particle-canvas { position: absolute; inset: 0; z-index: -1; filter: blur(0.5px); }
+        .sentinel-guardian { position: absolute; bottom: -50px; right: -30px; width: 420px; height: 80vh; background-image: url('https://cdn.pixabay.com/photo/2023/12/17/23/04/robot-8455115_1280.png'); background-size: contain; background-repeat: no-repeat; opacity: 0.12; z-index: 1; filter: grayscale(1) sepia(1) hue-rotate(10deg) brightness(0.7); transition: all 1.2s var(--transition); }
+        .chat-hub { width: 92%; max-width: 1050px; height: 85vh; background: var(--glass); backdrop-filter: blur(45px); border-radius: 45px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; box-shadow: 0 60px 150px rgba(0,0,0,0.9); z-index: 10; animation: hubEntry 1.2s var(--transition); }
+        @keyframes hubEntry { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .header { padding: 30px 60px; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-family: 'Montserrat', sans-serif; font-size: 14px; letter-spacing: 7px; color: var(--gold-premium); text-transform: uppercase; }
+        .history { flex: 1; padding: 40px 60px; overflow-y: auto; display: flex; flex-direction: column; gap: 25px; scroll-behavior: smooth; }
+        .msg { max-width: 75%; padding: 20px 30px; border-radius: 25px; font-size: 15px; line-height: 1.6; opacity: 0; transform: translateY(10px); animation: msgFade 0.5s ease forwards; }
+        @keyframes msgFade { to { opacity: 1; transform: translateY(0); } }
+        .msg.ai { background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); align-self: flex-start; border-bottom-left-radius: 5px; }
+        .msg.user { background: rgba(247, 231, 206, 0.08); border: 1px solid rgba(247, 231, 206, 0.2); align-self: flex-end; border-bottom-right-radius: 5px; }
+        .typing-dots span { width: 6px; height: 6px; background: var(--gold-premium); display: inline-block; border-radius: 50%; margin: 0 2px; animation: bounce 1.4s infinite ease-in-out; }
+        @keyframes bounce { 0%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-8px); } }
+        .controller { padding: 40px 60px; background: rgba(0,0,0,0.3); display: flex; gap: 20px; align-items: center; border-bottom-left-radius: 45px; border-bottom-right-radius: 45px; }
+        .voice-btn { background: none; border: 1px solid var(--glass-border); border-radius: 15px; padding: 15px; cursor: pointer; color: var(--gold-premium); transition: 0.3s; }
+        input { flex: 1; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 20px; padding: 22px 30px; color: #fff; font-size: 15px; outline: none; }
+        .send-btn { width: 65px; height: 65px; background: linear-gradient(135deg, var(--gold-premium), var(--gold-deep)); border-radius: 20px; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+        svg { width: 24px; stroke: #020804; fill: none; stroke-width: 2.5; }
+    </style>
+</head>
+<body>
+    <canvas id="particle-canvas"></canvas>
+    <div class="sentinel-guardian"></div>
+    <div class="chat-hub">
+        <div class="header"><h1 class="logo">REFINERY | SENTINEL</h1><div style="font-size: 10px; color: var(--gold-premium); letter-spacing: 2px;">NEURAL RAG: ACTIVE</div></div>
+        <div class="history" id="chat-history"><div class="msg ai">Neural Link: Online. Accessing Knowledge Base. How can I assist?</div></div>
+        <div class="controller">
+            <button class="voice-btn" id="voice-trigger"><svg style="stroke: var(--gold-premium);" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg></button>
+            <input type="text" id="user-input" placeholder="Querying Sentinel Hub..." autocomplete="off">
+            <button class="send-btn" id="send-btn" onclick="sendMessage()"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
+        </div>
+    </div>
+    <script>
+        const canvas = document.getElementById('particle-canvas'); const ctx = canvas.getContext('2d'); let dots = [];
+        function init() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; dots = []; for (let i = 0; i < 80; i++) dots.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, r: Math.random() * 1.2, s: Math.random() * 0.3 }); }
+        function draw() { ctx.fillStyle = '#020804'; ctx.fillRect(0, 0, canvas.width, canvas.height); dots.forEach(d => { d.y -= d.s; if (d.y < 0) d.y = canvas.height; ctx.fillStyle = 'rgba(247, 231, 206, 0.2)'; ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2); ctx.fill(); }); requestAnimationFrame(draw); }
+        init(); draw();
+
+        const historyContainer = document.getElementById('chat-history'); 
+        const userInputField = document.getElementById('user-input'); 
+
+        async function sendMessage() {
+            const query = userInputField.value.trim(); 
+            if (!query) return;
+
+            // 1. Show User Bubble
+            appendBubble('user', query);
+            userInputField.value = '';
+
+            // 2. Show AI Loading Bubble
+            const aiBubbleId = appendBubble('ai', `<div class="typing-dots"><span></span><span></span><span></span></div>`);
+            
+            try {
+                const response = await fetch('/chat_query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: query })
+                });
+                const data = await response.json();
+                
+                // 3. Update the CORRECT bubble with the answer
+                const aiBubble = document.getElementById(aiBubbleId);
+                aiBubble.innerHTML = data.answer;
+                
+                // Voice Output
+                const speech = new SpeechSynthesisUtterance(data.answer);
+                window.speechSynthesis.speak(speech);
+
+            } catch (e) {
+                document.getElementById(aiBubbleId).innerText = "Sentinel link offline.";
+            }
+        }
+
+        function appendBubble(sender, text) {
+            const id = 'bubble-' + Date.now() + Math.random().toString(36).substr(2, 4);
+            const div = document.createElement('div');
+            div.className = `msg ${sender}`;
+            div.id = id;
+            div.innerHTML = text;
+            historyContainer.appendChild(div);
+            historyContainer.scrollTop = historyContainer.scrollHeight;
+            return id;
+        }
+
+        const voiceBtn = document.getElementById('voice-trigger'); const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            voiceBtn.onclick = () => { recognition.start(); voiceBtn.classList.add('active'); };
+            recognition.onresult = (e) => { userInputField.value = e.results[0][0].transcript; voiceBtn.classList.remove('active'); sendMessage(); };
+        }
+        userInputField.onkeypress = (e) => { if (e.key === 'Enter') sendMessage(); };
+    </script>
+</body>
+</html>

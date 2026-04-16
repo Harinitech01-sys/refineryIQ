@@ -1,0 +1,528 @@
+You said
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Technical Report | RefineryIQ</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+
+    <style>
+
+        :root {
+
+            --bg: #050a07; --forest: #1b3022;
+
+            --gold: #f7e7ce; --gold-d: #d4af37;
+
+            --glass: rgba(255, 255, 255, 0.03);
+
+            --green-glow: #10b981;
+
+        }
+
+
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+
+            font-family: 'Inter', sans-serif; background-color: var(--bg); color: #e0e7e1;
+
+            min-height: 100vh; padding: 40px;
+
+            background: radial-gradient(circle at top right, var(--forest), var(--bg));
+
+        }
+
+
+
+        /* --- Report Header --- */
+
+        .report-header {
+
+            display: flex; justify-content: space-between; align-items: flex-start;
+
+            border-bottom: 1px solid rgba(247, 231, 206, 0.2);
+
+            padding-bottom: 20px; margin-bottom: 40px;
+
+        }
+
+        .logo-area h1 { font-family: 'Montserrat'; letter-spacing: 4px; color: var(--gold); font-size: 22px; }
+
+        .logo-area p { font-size: 10px; text-transform: uppercase; opacity: 0.5; margin-top: 5px; }
+
+        .meta-area { text-align: right; font-size: 11px; line-height: 1.6; color: var(--gold); }
+
+
+
+        .status-highlight {
+
+            color: var(--gold-d) !important;
+
+            font-weight: 700;
+
+            text-transform: uppercase;
+
+            letter-spacing: 1px;
+
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+
+        }
+
+
+
+        /* --- COMPLIANCE BADGE STYLES --- */
+
+        .compliance-wrapper { margin-bottom: 20px; text-align: center; }
+
+        .compliance-badge {
+
+            display: inline-block;
+
+            padding: 10px 30px;
+
+            border-radius: 8px;
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+            letter-spacing: 2px;
+
+            text-transform: uppercase;
+
+            border: 1px solid;
+
+            backdrop-filter: blur(10px);
+
+        }
+
+        .pass { border-color: #10b981; color: #10b981; background: rgba(16, 185, 129, 0.1); box-shadow: 0 0 20px rgba(16, 185, 129, 0.2); }
+
+        .fail { border-color: #ef4444; color: #ef4444; background: rgba(239, 68, 68, 0.1); box-shadow: 0 0 20px rgba(239, 68, 68, 0.2); }
+
+
+
+        /* --- HIGH VISIBILITY IMPACT CARDS --- */
+
+        .impact-grid {
+
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 20px;
+
+            max-width: 700px;
+
+            margin: 0 auto 40px;
+
+        }
+
+        .impact-card {
+
+            background: var(--glass);
+
+            border: 1px solid rgba(255,255,255,0.1);
+
+            padding: 25px;
+
+            border-radius: 20px;
+
+            text-align: center;
+
+            backdrop-filter: blur(15px);
+
+        }
+
+        .impact-card label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; opacity: 0.5; margin-bottom: 10px; display: block; }
+
+        .impact-card .val { font-size: 28px; font-weight: 700; display: block; }
+
+
+
+        /* --- MASSIVE YIELD SECTION --- */
+
+        .hero { display: flex; justify-content: center; margin-bottom: 40px; }
+
+        .hero-container { display: flex; flex-direction: column; align-items: center; gap: 35px; }
+
+        .gauge-wrapper { position: relative; width: 340px; height: 340px; }
+
+        svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+
+        .circle-bg { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 14; }
+
+        .circle-progress {
+
+            fill: none; stroke: var(--gold); stroke-width: 14; stroke-linecap: round;
+
+            stroke-dasharray: 690; stroke-dashoffset: 690;
+
+            transition: stroke-dashoffset 2.5s cubic-bezier(0.16, 1, 0.3, 1);
+
+            filter: drop-shadow(0 0 15px var(--gold-d));
+
+        }
+
+        .gauge-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+
+        .gauge-text h1 { font-size: 72px; color: var(--gold); margin: 0; font-weight: 700; }
+
+        .gauge-text p { font-size: 14px; text-transform: uppercase; letter-spacing: 5px; opacity: 0.6; }
+
+
+
+        /* --- XAI PROGRESS BARS --- */
+
+        .xai-bar-container { width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; margin-top: 5px; overflow: hidden; }
+
+        .xai-bar-fill { height: 100%; border-radius: 10px; transition: width 1s ease-in-out; }
+
+
+
+        /* --- Detailed Table --- */
+
+        .details-section { margin-bottom: 40px; }
+
+        .section-title { font-size: 12px; text-transform: uppercase; letter-spacing: 3px; color: var(--gold-d); margin-bottom: 20px; border-left: 3px solid var(--gold-d); padding-left: 15px; }
+
+        table { width: 100%; border-collapse: collapse; background: var(--glass); border-radius: 15px; overflow: hidden; }
+
+        th, td { padding: 18px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+        th { font-size: 10px; text-transform: uppercase; color: rgba(255,255,255,0.4); letter-spacing: 1px; }
+
+        td { font-size: 14px; color: #fff; }
+
+        .val-highlight { color: var(--gold); font-weight: 600; }
+
+
+
+        /* --- DYNAMIC ALERT BOX --- */
+
+        .analysis-box {
+
+            background: rgba(212, 175, 55, 0.05); border: 1px solid rgba(212, 175, 55, 0.2);
+
+            padding: 30px; border-radius: 20px; line-height: 1.6;
+
+            transition: 0.3s;
+
+        }
+
+        .analysis-box p { font-style: italic; color: #cbd5ce; }
+
+        .alert-red { border: 1px solid #ef4444 !important; background: rgba(239, 68, 68, 0.1) !important; }
+
+        .alert-text-red { color: #ff6b6b !important; font-weight: 600 !important; }
+
+
+
+        .actions { display: flex; justify-content: center; gap: 20px; margin-top: 50px; }
+
+        .btn {
+
+            background: linear-gradient(135deg, var(--gold), var(--gold-d));
+
+            color: #050a07; border: none; padding: 15px 40px; border-radius: 50px;
+
+            font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.3s;
+
+        }
+
+        .btn-outline { background: none; border: 1px solid var(--gold); color: var(--gold); }
+
+
+
+        @media print {
+
+            body { background: white !important; color: #1a1a1a !important; padding: 0; }
+
+            .actions, nav, .qr-section { display: none !important; }
+
+            .impact-card { border: 1px solid #ccc !important; color: black !important; }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+
+
+    <main id="pdf-content">
+
+        <div class="report-header">
+
+            <div class="logo-area">
+
+                <h1>REFINERY | IQ</h1>
+
+                <p>AI-Driven Biodiesel Optimization System</p>
+
+            </div>
+
+            <div class="meta-area">
+
+                <strong>Batch ID:</strong> REF-{{ range(1000, 9999) | random }}<br>
+
+                <strong>Date:</strong> {{ now }}<br>
+
+                <strong>Status:</strong>
+
+                <span class="status-highlight">
+
+                    {{ status }}
+
+                </span>
+
+            </div>
+
+        </div>
+
+
+
+        <section class="hero">
+
+            <div class="hero-container">
+
+                <div class="compliance-badge {{ 'pass' if is_compliant else 'fail' }}">
+
+                    ASTM D6751: {{ compliance }}
+
+                </div>
+
+
+
+                <div class="gauge-wrapper">
+
+                    <svg viewBox="0 0 250 250">
+
+                        <circle class="circle-bg" cx="125" cy="125" r="110"></circle>
+
+                        <circle id="prog-ring" class="circle-progress" cx="125" cy="125" r="110"></circle>
+
+                    </svg>
+
+                    <div class="gauge-text">
+
+                        <h1>{{ yield_value }}%</h1>
+
+                        <p>AI Yield</p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <div class="impact-grid">
+
+            <div class="impact-card" style="border-bottom: 4px solid var(--green-glow);">
+
+                <label>Sustainability Impact</label>
+
+                <span class="val" style="color: var(--green-glow);">🌱 {{ co2_saved | default('0.0') }} kg</span>
+
+                <p style="font-size: 9px; opacity: 0.5; margin-top: 5px;">NET CO2 REDUCTION</p>
+
+            </div>
+
+            <div class="impact-card" style="border-bottom: 4px solid var(--gold);">
+
+                <label>Economic Viability</label>
+
+                <span class="val" style="color: var(--gold);">💰 {{ profit | default('0.0') }}</span>
+
+                <p style="font-size: 9px; opacity: 0.5; margin-top: 5px;">NET BATCH PROFIT</p>
+
+            </div>
+
+
+
+            <div class="impact-card" style="border: 1px dashed var(--gold-d); background: rgba(212, 175, 55, 0.02); grid-column: span 2;">
+
+                <label>Molecular Stress Test (Synthetic Variance)</label>
+
+                <div style="display: flex; justify-content: center; align-items: center; gap: 40px; padding: 10px 0;">
+
+                    <span class="val" style="font-size: 32px; color: var(--gold-premium);">
+
+                        {{ safety_margin | default('0.0') }}% <small style="font-size: 10px; opacity: 0.5;">MARGIN</small>
+
+                    </span>
+
+                    <div style="text-align: left; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 20px;">
+
+                        <p style="font-size: 10px; color: var(--gold-d); letter-spacing: 1px;">STATUS: <strong>{{ stress_status | default('STABLE ✅') }}</strong></p>
+
+                        <p style="font-size: 9px; opacity: 0.6; line-height: 1.4; max-width: 300px;">
+
+                            AI simulated 5 "worst-case" feedstock fluctuations. The batch can sustain a {{ safety_margin | default('0.0') }}% impurity spike before failing ASTM D6751.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="impact-card" style="grid-column: span 2; text-align: left;">
+
+                <label>Explainable AI (Neural Influence)</label>
+
+                <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 12px;">
+
+                    <div>
+
+                        <div style="display: flex; justify-content: space-between; font-size: 9px; letter-spacing: 1px;">
+
+                            <span>MOISTURE IMPACT</span><span>{{ m_impact | default('0') }}%</span>
+
+                        </div>
+
+                        <div class="xai-bar-container"><div class="xai-bar-fill" style="width: {{ m_impact | default('0') }}%; background: #60a5fa;"></div></div>
+
+                    </div>
+
+                    <div>
+
+                        <div style="display: flex; justify-content: space-between; font-size: 9px; letter-spacing: 1px;">
+
+                            <span>FFA LEVEL IMPACT</span><span>{{ f_impact | default('0') }}%</span>
+
+                        </div>
+
+                        <div class="xai-bar-container"><div class="xai-bar-fill" style="width: {{ f_impact | default('0') }}%; background: #fbbf24;"></div></div>
+
+                    </div>
+
+                    <div>
+
+                        <div style="display: flex; justify-content: space-between; font-size: 9px; letter-spacing: 1px;">
+
+                            <span>IMPURITY LEVEL IMPACT</span><span>{{ i_impact | default('0') }}%</span>
+
+                        </div>
+
+                        <div class="xai-bar-container"><div class="xai-bar-fill" style="width: {{ i_impact | default('0') }}%; background: #f87171;"></div></div>
+
+                    </div>
+
+                </div>
+
+                <p style="font-size: 9px; opacity: 0.5; margin-top: 10px;">Primary yield bottleneck identified: <strong>{{ top_factor | default('N/A') }}</strong></p>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="details-section">
+
+            <h2 class="section-title">Reaction Parameters</h2>
+
+            <table>
+
+                <thead>
+
+                    <tr><th>Parameter</th><th>AI Optimized Value</th><th>Unit</th></tr>
+
+                </thead>
+
+                <tbody>
+
+                    <tr><td>Reaction Temperature</td><td class="val-highlight">{{ temperature }}</td><td>°C</td></tr>
+
+                    <tr><td>Catalyst-to-Oil Ratio</td><td class="val-highlight">{{ catalyst }}</td><td>wt%</td></tr>
+
+                    <tr><td>Predicted Reaction Time</td><td class="val-highlight">{{ reaction_time }}</td><td>Minutes</td></tr>
+
+                    <tr><td>Compliance Standard</td><td class="val-highlight">{{ compliance }}</td><td>ASTM D6751</td></tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+
+        <div class="details-section">
+
+            <h2 class="section-title">AI Optimization Strategy</h2>
+
+            <div class="analysis-box {% if profit|float < 0 %} alert-red {% endif %}">
+
+                <p class="{% if profit|float < 0 %} alert-text-red {% endif %}">
+
+                    "{{ suggestion }}"
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="qr-section" style="margin-top: 40px; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 30px;">
+
+            <p style="font-size: 10px; letter-spacing: 3px; opacity: 0.5; margin-bottom: 15px;">QR-SYNC: SCAN FOR MOBILE DASHBOARD</p>
+
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=http://10.30.166.224:5000/results&bgcolor=050a07&color=f7e7ce"
+
+                 style="border: 2px solid var(--gold); border-radius: 10px; padding: 10px;">
+
+        </div>
+
+    </main>
+
+
+
+    <div class="actions">
+
+        <button class="btn btn-outline" onclick="window.location.href='/predictor'">New Batch</button>
+
+        <button class="btn" onclick="window.print()">Download Technical PDF</button>
+
+    </div>
+
+
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const y = parseFloat("{{ yield_value }}");
+
+            const ring = document.getElementById('prog-ring');
+
+            const offset = 690 - (y / 100) * 690;
+
+            setTimeout(() => { ring.style.strokeDashoffset = offset; }, 300);
+
+        });
+
+    </script>
+
+</body>
+
+</html>

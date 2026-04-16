@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Marketplace | RefineryIQ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #f7e7ce;
+            --gold-dark: #d4af37;
+            --glass: rgba(255, 255, 255, 0.07);
+            --glass-border: rgba(255, 255, 255, 0.15);
+        }
+
+        body { 
+            font-family: 'Montserrat', sans-serif; 
+            /* BRIGHTER BACKGROUND: Radiant forest glow */
+            background: radial-gradient(circle at top right, #1b3022, #050a07); 
+            background-attachment: fixed;
+            color: #e0e7e1; 
+            padding: 40px; 
+            min-height: 100vh;
+        }
+
+        .container { max-width: 900px; margin: auto; }
+
+        h2 { 
+            color: var(--gold); 
+            letter-spacing: 4px; 
+            text-transform: uppercase; 
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* Enhanced Inputs */
+        input { 
+            width: 100%; 
+            padding: 16px; 
+            margin: 10px 0 20px 0; 
+            border-radius: 15px; 
+            border: 1px solid var(--glass-border); 
+            background: rgba(0, 0, 0, 0.3); 
+            color: white; 
+            outline: none;
+            transition: 0.3s;
+            font-family: inherit;
+        }
+
+        input:focus { 
+            border-color: var(--gold); 
+            background: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 15px rgba(247, 231, 206, 0.1);
+        }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-top: 20px; }
+
+        /* Modernized Cards */
+        .card { 
+            background: var(--glass); 
+            padding: 30px; 
+            border-radius: 25px; 
+            border: 1px solid var(--glass-border); 
+            backdrop-filter: blur(15px);
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+
+        .card:hover { 
+            transform: translateY(-5px);
+            border-color: var(--gold); 
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+        }
+
+        .price-tag { 
+            color: var(--gold); 
+            font-size: 1.4rem; 
+            font-weight: 700; 
+            margin: 15px 0;
+        }
+
+        /* Polished Buttons */
+        button { 
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark)); 
+            color: #050a07; 
+            border: none; 
+            padding: 14px 20px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-weight: 700; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 100%; 
+            transition: 0.3s;
+        }
+
+        button:hover { 
+            transform: scale(1.02);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Order Summary Section */
+        #cart { 
+            background: rgba(255,255,255,0.03); 
+            padding: 20px; 
+            border-radius: 15px; 
+            border-left: 4px solid var(--gold);
+            margin-bottom: 20px;
+        }
+
+        /* Invoice Styling */
+        .invoice { 
+            background: #ffffff; 
+            color: #1a1a1a; 
+            padding: 40px; 
+            border-radius: 24px; 
+            margin-top: 40px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        hr { border: 0; border-top: 1px solid #ddd; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🛒 Bio-Feedstock Market</h2>
+        
+        <div style="display: flex; gap: 15px;">
+            <input id="buyer" placeholder="Your Company Name">
+            <input id="search" placeholder="🔍 Search resource type..." onkeyup="load()">
+        </div>
+
+        <div id="list" class="grid"></div>
+        
+        <div style="margin-top: 50px;">
+            <h3 style="margin-bottom: 15px; color: var(--gold); text-transform: uppercase; font-size: 0.9rem; letter-spacing: 2px;">Order Summary</h3>
+            <div id="cart"><p style="opacity: 0.5;">No items selected yet...</p></div>
+            <button onclick="buy()" style="margin-top:10px; font-size: 1rem;">Complete Secure Transaction</button>
+        </div>
+
+        <div id="output"></div>
+    </div>
+
+    <script>
+        // Logic remains untouched
+        let sellers = JSON.parse(localStorage.getItem("sellers")) || [];
+        let cart = [];
+
+        function load(){
+            let query = document.getElementById("search").value.toLowerCase();
+            let html = "";
+            sellers.forEach((s, i) => {
+                if(!s.seller.toLowerCase().includes(query) && !s.source.toLowerCase().includes(query)) return;
+                html += `
+                    <div class="card">
+                        <span style="opacity:0.6; font-size:10px; font-weight:700; letter-spacing:1px; color:var(--gold);">CERTIFIED BATCH</span>
+                        <h3 style="margin:10px 0; font-size: 1.2rem;">${s.seller}</h3>
+                        <p style="font-size:0.85rem; opacity: 0.8;">Source: <b>${s.source}</b></p>
+                        <p class="price-tag">₹${s.price}<span style="font-size: 0.8rem; font-weight:400;">/L</span></p>
+                        <input id="qty-${i}" type="number" placeholder="Enter Qty (L)">
+                        <button id="btn-${i}" onclick="addToCart(${i})">Add to Order</button>
+                    </div>`;
+            });
+            document.getElementById("list").innerHTML = html || "<p style='grid-column: 1/-1; text-align: center; padding: 40px; opacity: 0.5;'>No resources match your search.</p>";
+        }
+
+        function addToCart(i){
+            let qty = parseFloat(document.getElementById("qty-"+i).value);
+            if(!qty || qty <= 0){ alert("Please enter a valid quantity"); return; }
+            
+            // Allow adding if quantity is valid (assuming logic allows multiple adds)
+            cart.push({...sellers[i], buyQty: qty, index: i});
+            document.getElementById("btn-"+i).innerText = "✔ Added to Cart";
+            document.getElementById("btn-"+i).style.background = "#10b981";
+            document.getElementById("btn-"+i).style.color = "white";
+            updateCart();
+        }
+
+        function updateCart(){
+            if(cart.length === 0) {
+                document.getElementById("cart").innerHTML = `<p style="opacity: 0.5;">No items selected yet...</p>`;
+                return;
+            }
+            let html = cart.map(item => `
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size: 0.9rem;">
+                    <span><b>${item.source}</b> (${item.buyQty}L)</span>
+                    <span style="color:var(--gold)">₹${(item.price * item.buyQty).toLocaleString()}</span>
+                </div>
+            `).join("");
+            document.getElementById("cart").innerHTML = html;
+        }
+
+        function buy(){
+            if(!buyer.value || cart.length === 0) { alert("Please provide your company name and select at least one item."); return; }
+            let total = cart.reduce((acc, curr) => acc + (curr.price * curr.buyQty), 0);
+            document.getElementById("output").innerHTML = `
+                <div class="invoice">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h2 style="color:#000; margin:0; text-align:left;">INVOICE</h2>
+                        <span style="opacity:0.5; font-size:0.8rem;">RefineryIQ Secure Portal</span>
+                    </div>
+                    <hr>
+                    <p style="margin: 5px 0;"><b>Buyer:</b> ${buyer.value}</p>
+                    <p style="margin: 5px 0;"><b>Date:</b> ${new Date().toLocaleDateString()}</p>
+                    <div style="margin: 30px 0;">
+                        ${cart.map(item => `<p style="display:flex; justify-content:space-between;"><span>${item.source} x ${item.buyQty}L</span> <span>₹${(item.price * item.buyQty).toLocaleString()}</span></p>`).join("")}
+                    </div>
+                    <hr>
+                    <h3 style="display:flex; justify-content:space-between;"><span>Total Payable:</span> <span>₹${total.toLocaleString()}</span></h3>
+                    <button onclick="window.print()" style="margin-top:30px; background:#000; color:#fff;">Download PDF / Print</button>
+                </div>`;
+            
+            // Scroll to invoice
+            document.getElementById("output").scrollIntoView({ behavior: 'smooth' });
+        }
+        load();
+    </script>
+</body>
+</html>

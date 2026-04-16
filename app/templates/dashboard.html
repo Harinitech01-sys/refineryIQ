@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>System Dashboard | RefineryIQ</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #050a07; --gold: #f7e7ce; --gold-d: #d4af37; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 40px; overflow-x: hidden; }
+        
+        .bg-blur {
+            position: fixed; inset: 0; z-index: -1;
+            background: linear-gradient(rgba(5, 10, 7, 0.85), rgba(5, 10, 7, 0.85)), 
+                        url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=2000');
+            background-size: cover; background-position: center; filter: blur(8px);
+        }
+
+        header {
+            max-width: 1100px; margin: 0 auto 30px auto;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .logo { font-family: 'Montserrat'; letter-spacing: 4px; color: var(--gold); font-size: 14px; text-transform: uppercase; }
+        nav a { text-decoration: none; color: rgba(255,255,255,0.4); font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; transition: 0.3s; margin-left: 30px; }
+        nav a:hover { color: var(--gold); }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 40px;
+            max-width: 1100px; margin: auto; padding: 60px; text-align: center;
+        }
+
+        h1 { font-family: 'Montserrat'; letter-spacing: 10px; color: var(--gold); margin-bottom: 10px; }
+        .tagline { font-size: 10px; text-transform: uppercase; letter-spacing: 4px; opacity: 0.4; margin-bottom: 40px; }
+        
+        .btn-live {
+            background: linear-gradient(135deg, var(--gold), var(--gold-d));
+            color: #050a07; border: none; padding: 20px 60px; border-radius: 50px;
+            font-weight: 800; letter-spacing: 2px; cursor: pointer; transition: 0.4s;
+        }
+
+        #dashboard-content { display: none; margin-top: 50px; animation: fadeInUp 1s ease; }
+        .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 40px; }
+        .chart-box { background: rgba(0,0,0,0.4); border-radius: 30px; padding: 30px; border: 1px solid rgba(255,255,255,0.05); height: 350px; }
+
+        .stat-row { display: flex; justify-content: space-around; margin-bottom: 40px; }
+        .stat-item p { font-size: 10px; color: var(--gold-d); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+        .stat-item h2 { font-size: 32px; color: white; margin: 0; }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="bg-blur"></div>
+
+    <header>
+        <div class="logo">REFINERY | IQ</div>
+        <nav>
+            <a href="/predictor">Predictor</a>
+            <a href="/dashboard">System</a>
+        </nav>
+    </header>
+
+    <div class="panel">
+        <h1>REFINERY | IQ</h1>
+        <p class="tagline">Neural Network Simulation Dashboard</p>
+        
+        <button class="btn-live" onclick="initDashboard()">INITIALIZE LIVE FEED</button>
+
+        <div id="dashboard-content">
+            <div class="stat-row">
+                <div class="stat-item"><p>Model Accuracy</p><h2>94.2%</h2></div>
+                <div class="stat-item"><p>Total Batches</p><h2>{{ total_batches }}</h2></div>
+                <div class="stat-item"><p>Avg Efficiency</p><h2>{{ avg_eff }}%</h2></div>
+            </div>
+            
+            <div class="chart-grid">
+                <div class="chart-box"><canvas id="barChart"></canvas></div>
+                <div class="chart-box"><canvas id="lineChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function initDashboard() {
+            document.querySelector('.btn-live').style.display = 'none';
+            document.getElementById('dashboard-content').style.display = 'block';
+            renderCharts();
+        }
+
+        function renderCharts() {
+            Chart.defaults.color = 'rgba(255,255,255,0.6)';
+            Chart.defaults.font.family = 'Inter';
+
+            // Real Data from Flask
+            const dbHistory = {{ history | tojson }};
+            const labels = dbHistory.map((_, index) => `Batch ${index + 1}`);
+
+            // Bar Chart: Yield Comparison (Kept exactly as requested)
+            new Chart(document.getElementById('barChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Eco', 'Balanced', 'Max'],
+                    datasets: [{
+                        data: [76, 88, 94],
+                        backgroundColor: ['#1b3022', '#d4af37', '#f7e7ce'],
+                        borderRadius: 12
+                    }]
+                },
+                options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+
+            // Line Chart: Historical Trend (Now Syncing with DB)
+            new Chart(document.getElementById('lineChart'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Recent Yield Trend',
+                        data: dbHistory,
+                        borderColor: '#f7e7ce',
+                        tension: 0.4,
+                        fill: true,
+                        backgroundColor: 'rgba(247, 231, 206, 0.05)'
+                    }]
+                },
+                options: { maintainAspectRatio: false }
+            });
+        }
+    </script>
+</body>
+</html>

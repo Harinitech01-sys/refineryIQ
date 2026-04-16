@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Seller | RefineryIQ</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --gold: #f7e7ce;
+    --gold-dark: #d4af37;
+    --accent-green: #10b981;
+    --accent-red: #ef4444;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    /* BRIGHTER BACKGROUND: Transition from deep green to a lighter forest glow */
+    background: radial-gradient(circle at top right, #1b3022, #050a07);
+    background-attachment: fixed;
+    color: #e0e7e1;
+    padding: 40px;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
+/* Glass container - Enhanced UX with softer shadows and hover glow */
+.container {
+    max-width: 520px;
+    margin: auto;
+    padding: 40px;
+    border-radius: 30px;
+    background: rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    transition: transform 0.3s ease;
+}
+
+h2 {
+    text-align: center;
+    color: var(--gold);
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 1.6rem;
+    letter-spacing: 4px;
+    margin-bottom: 35px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+/* Floating input - Improved UX with focus glow */
+.field {
+    position: relative;
+    margin: 22px 0;
+}
+
+.field input, .field select {
+    width: 100%;
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.3);
+    color: white;
+    outline: none;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.field input:focus {
+    border-color: var(--gold);
+    background: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.15);
+}
+
+.field label {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    transform: translateY(-50%);
+    font-size: 12px;
+    font-weight: 500;
+    opacity: 0.5;
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.field input:focus + label,
+.field input:not(:placeholder-shown) + label {
+    top: -12px;
+    left: 8px;
+    font-size: 10px;
+    color: var(--gold-dark);
+    opacity: 1;
+    background: #0d1a13; /* Matches background for "cut-out" look */
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+/* Upload - Modernized with pulsing hover */
+.upload {
+    border: 2px dashed rgba(255, 255, 255, 0.15);
+    padding: 25px;
+    border-radius: 16px;
+    text-align: center;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.02);
+    transition: 0.3s;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.7);
+}
+
+.upload:hover {
+    border-color: var(--gold);
+    background: rgba(247, 231, 206, 0.05);
+    color: var(--gold);
+}
+
+.preview {
+    margin-top: 15px;
+    max-height: 150px;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+}
+
+/* Primary Button with Shimmer Animation */
+button {
+    width: 100%;
+    padding: 16px;
+    border-radius: 14px;
+    border: none;
+    font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.primary {
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    color: #050a07;
+    position: relative;
+    overflow: hidden;
+}
+
+.primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(212, 175, 55, 0.3);
+}
+
+.primary:active { transform: translateY(0); }
+
+.secondary {
+    background: transparent;
+    border: 1px solid rgba(247, 231, 206, 0.3);
+    color: var(--gold);
+}
+
+.secondary:hover {
+    background: rgba(255,255,255,0.05);
+    border-color: var(--gold);
+}
+
+.badge {
+    font-size: 11px;
+    font-weight: 700;
+    margin-top: 8px;
+    padding-left: 5px;
+}
+
+.green { color: var(--accent-green); }
+.red { color: var(--accent-red); }
+
+/* Toast Notification - Enhanced UX */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--accent-green);
+    color: white;
+    font-weight: 600;
+    padding: 16px 28px;
+    border-radius: 50px;
+    display: none;
+    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+    animation: slideIn 0.5s forwards;
+    z-index: 1000;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>🏪 Seller Listing</h2>
+
+    <div class="field">
+        <input id="seller" placeholder=" " />
+        <label>Company Name</label>
+    </div>
+
+    <div class="field">
+        <select id="source" style="padding-top: 10px;">
+            <option>Used Cooking Oil</option>
+            <option>Vegetable Oils</option>
+            <option>Animal Fats</option>
+        </select>
+        </div>
+
+    <div class="field">
+        <input id="quantity" type="number" placeholder=" " />
+        <label>Quantity (Liters)</label>
+    </div>
+
+    <div class="field">
+        <input id="price" type="number" placeholder=" " oninput="comparePrice()" />
+        <label>Offer Price (₹)</label>
+    </div>
+
+    <div class="field">
+        <input id="originalPrice" type="number" placeholder=" " oninput="comparePrice()" />
+        <label>Market Price (₹)</label>
+        <div id="priceMsg" class="badge"></div>
+    </div>
+
+    <div class="field">
+        <input id="rating" type="number" min="1" max="5" placeholder=" " />
+        <label>Seller Rating (1-5)</label>
+    </div>
+
+    <div class="upload" onclick="document.getElementById('proof').click()">
+        📁 Click to Upload Purity Proof
+        <input type="file" id="proof" hidden onchange="previewFile()" />
+        <img id="preview" class="preview"/>
+    </div>
+
+    <button class="primary" onclick="save()">Publish Listing</button>
+    <button class="secondary" onclick="window.location.href='/'">Cancel</button>
+</div>
+
+<div id="toast" class="toast">✔ Listing Successfully Published</div>
+
+<script>
+// No changes to logic as requested
+function previewFile(){
+    let file = proof.files[0];
+    if(file){
+        let reader = new FileReader();
+        reader.onload = () => preview.src = reader.result;
+        reader.readAsDataURL(file);
+    }
+}
+
+function comparePrice(){
+    let p = parseFloat(price.value);
+    let o = parseFloat(originalPrice.value);
+
+    if(p && o){
+        if(p < o){
+            priceMsg.innerText = "✓ Good Deal: Below Market Price";
+            priceMsg.className = "badge green";
+        } else {
+            priceMsg.innerText = "⚠ Alert: Price is higher than market";
+            priceMsg.className = "badge red";
+        }
+    }
+}
+
+function save(){
+    if(!seller.value || !quantity.value || !price.value){
+        alert("Please fill all required fields");
+        return;
+    }
+
+    let reader = new FileReader();
+    let file = proof.files[0];
+
+    reader.onload = function(){
+        let sellers = JSON.parse(localStorage.getItem("sellers")) || [];
+
+        sellers.push({
+            seller: seller.value,
+            source: source.value,
+            quantity: parseFloat(quantity.value),
+            price: parseFloat(price.value),
+            originalPrice: parseFloat(originalPrice.value),
+            rating: parseFloat(rating.value || 0),
+            proof: reader.result
+        });
+
+        localStorage.setItem("sellers", JSON.stringify(sellers));
+
+        let toast = document.getElementById("toast");
+        toast.style.display = "block";
+        setTimeout(()=> toast.style.display="none",2000);
+
+        setTimeout(()=> location.reload(),2000);
+    };
+
+    if(file) reader.readAsDataURL(file);
+    else alert("Please upload proof of purity");
+}
+</script>
+
+</body>
+</html>

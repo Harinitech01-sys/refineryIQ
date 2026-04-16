@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Refinery IQ | Final Logic Build</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #f7e7ce; --accent: #d4af37; --bg: #030705;
+            --glass: rgba(255, 255, 255, 0.03); --border: rgba(247, 231, 206, 0.12);
+            --danger: #ff4444; --safe: #44ff44;
+        }
+        body { margin: 0; background: var(--bg); color: white; font-family: 'Inter', sans-serif; overflow: hidden; display: flex; }
+
+        /* --- UI PANEL --- */
+        #ui-panel {
+            width: 360px; background: rgba(5, 10, 7, 0.95); backdrop-filter: blur(30px);
+            border-right: 1px solid var(--border); padding: 35px; z-index: 10;
+            display: flex; flex-direction: column; gap: 15px;
+        }
+
+        .brand { font-family: 'Montserrat'; font-weight: 700; color: var(--gold); letter-spacing: 5px; font-size: 14px; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        label { font-size: 9px; text-transform: uppercase; opacity: 0.5; letter-spacing: 1.5px; }
+        
+        /* BLACK DROPDOWN FIX */
+        input, select { 
+            background: #000 !important; border: 1px solid var(--border); 
+            padding: 12px; color: var(--gold); border-radius: 4px; outline: none;
+            font-family: 'JetBrains Mono', monospace; font-size: 12px;
+            appearance: none; /* Removes default browser styling */
+        }
+        select option {
+            background: #000 !important;
+            color: var(--gold);
+        }
+
+        .btn-run {
+            background: var(--gold); color: #000; border: none; padding: 16px; border-radius: 4px; 
+            font-weight: 900; cursor: pointer; text-transform: uppercase; margin-top: 10px;
+        }
+
+        #ai-terminal {
+            background: rgba(0, 0, 0, 0.6); border: 1px solid var(--border); border-radius: 4px;
+            padding: 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px;
+            color: #88c9a1; height: 160px; overflow-y: hidden;
+        }
+        .term-line { margin-bottom: 4px; border-left: 2px solid var(--accent); padding-left: 8px; }
+        .term-err { color: var(--danger); border-left-color: var(--danger); }
+
+        /* --- VIEWPORT --- */
+        #viewport { flex-grow: 1; position: relative; }
+        .layer-label {
+            position: absolute; left: 60%; transform: translateX(-50%);
+            font-family: 'JetBrains Mono'; font-size: 11px; font-weight: bold;
+            color: var(--gold); opacity: 0; transition: 1.5s; padding: 5px 10px;
+            border-left: 2px solid var(--gold); background: rgba(0,0,0,0.8);
+        }
+        #top-label { top: 25%; } #bottom-label { bottom: 25%; }
+
+        #risk-hud { position: absolute; top: 30px; left: 30px; display: flex; gap: 15px; }
+        .risk-card { background: var(--glass); border: 1px solid var(--border); padding: 12px 20px; border-radius: 4px; border-left: 4px solid var(--safe); }
+        .critical { border-left-color: var(--danger) !important; color: var(--danger); }
+
+        #hud-metrics { position: absolute; top: 30px; right: 30px; display: flex; flex-direction: column; gap: 12px; }
+        .metric-box { background: var(--glass); border: 1px solid var(--border); padding: 15px 25px; border-radius: 4px; text-align: right; min-width: 180px; }
+        .m-val { font-family: 'Montserrat'; font-size: 1.6rem; color: var(--gold); font-weight: 700; }
+
+        #yield-overlay { position: absolute; bottom: 40px; left: 40px; font-family: 'Montserrat'; font-size: 4rem; color: var(--gold); }
+        .unit { font-size: 1.2rem; opacity: 0.5; margin-left: 5px; }
+    </style>
+</head>
+<body>
+
+<div id="ui-panel">
+    <div class="brand">REFINERY IQ // LOGIC</div>
+    
+    <div class="input-group">
+        <label>Feedstock</label>
+        <select id="in_source" onchange="evaluateRisk()">
+            <option value="1.0">Used Cooking Oil (UCO)</option>
+            <option value="0.9">Vegetable Oil</option>
+            <option value="0.8">Agri-Residue Bio-Crude</option>
+        </select>
+    </div>
+
+    <div class="input-group">
+        <label>Moisture Content (%)</label>
+        <input type="number" id="in_moist" value="0.05" step="0.01" oninput="evaluateRisk()">
+    </div>
+
+    <div class="input-group">
+        <label>FFA Concentration (%)</label>
+        <input type="number" id="in_ffa" value="2.1" step="0.1" oninput="evaluateRisk()">
+    </div>
+
+    <button class="btn-run" onclick="triggerAgenticProcess()">Run Chemical Analysis</button>
+
+    <div id="ai-terminal">
+        <div class="term-line">System Ready...</div>
+    </div>
+</div>
+
+<div id="viewport">
+    <div id="top-label" class="layer-label">TOP LAYER: BIO-DIESEL</div>
+    <div id="bottom-label" class="layer-label">BOTTOM LAYER: GLYCEROL / SOAP SALTS</div>
+
+    <div id="risk-hud">
+        <div id="moist-card" class="risk-card"><label>Moisture Risk</label><div id="moist-status">NOMINAL</div></div>
+        <div id="ffa-card" class="risk-card"><label>FFA Risk</label><div id="ffa-status">STABLE</div></div>
+    </div>
+
+    <div id="hud-metrics">
+        <div class="metric-box">
+            <label>Net CO2 Offset</label>
+            <div class="m-val"><span id="co2-val">0.0</span><span class="unit">kg</span></div>
+        </div>
+        <div class="metric-box">
+            <label>Market Credit</label>
+            <div class="m-val"><span id="pay-val">₹0</span></div>
+        </div>
+    </div>
+
+    <div id="yield-overlay">
+        <label style="display:block; font-size:12px">REAL-TIME YIELD</label>
+        <span id="yield-display">00.0</span><span class="unit">%</span>
+    </div>
+</div>
+
+<script>
+    let scene, camera, renderer, reactor, particles;
+    let isSeparating = false;
+
+    function init3D() {
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(75, (window.innerWidth - 360) / window.innerHeight, 0.1, 1000);
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth - 360, window.innerHeight);
+        document.getElementById('viewport').appendChild(renderer.domElement);
+
+        const ambient = new THREE.AmbientLight(0xffffff, 0.4); scene.add(ambient);
+        const point = new THREE.PointLight(0xf7e7ce, 1.8); point.position.set(5, 8, 5); scene.add(point);
+
+        reactor = new THREE.Mesh(new THREE.CylinderGeometry(2.1, 2.1, 7, 32, 1, true), 
+            new THREE.MeshPhongMaterial({ color: 0xffffff, transparent: true, opacity: 0.1, side: THREE.DoubleSide }));
+        scene.add(reactor);
+
+        const pCount = 3500;
+        const pGeometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(pCount * 3);
+        for (let i = 0; i < pCount; i++) {
+            positions[i * 3] = (Math.random() - 0.5) * 3.8;
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 6.5;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 3.8;
+        }
+        pGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        particles = new THREE.Points(pGeometry, new THREE.PointsMaterial({ size: 0.06, vertexColors: true }));
+        scene.add(particles);
+
+        camera.position.set(0, 1, 11);
+        animate();
+        evaluateRisk();
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+        particles.rotation.y += 0.002;
+        const pos = particles.geometry.attributes.position.array;
+        for (let i = 0; i < pos.length; i += 3) {
+            if (isSeparating) {
+                if (i % 2 === 0) pos[i+1] -= 0.018; else pos[i+1] += 0.018;
+                if (pos[i+1] < -3.3) pos[i+1] = -3.3; if (pos[i+1] > 3.3) pos[i+1] = 3.3;
+            } else {
+                pos[i+1] += (Math.random() - 0.5) * 0.14;
+                if (Math.abs(pos[i+1]) > 3.5) pos[i+1] *= -0.95;
+            }
+        }
+        particles.geometry.attributes.position.needsUpdate = true;
+        renderer.render(scene, camera);
+    }
+
+    function logAgent(msg, type = "normal") {
+        const term = document.getElementById('ai-terminal');
+        const div = document.createElement('div');
+        div.className = 'term-line';
+        if(type === "err") div.className += " term-err";
+        div.innerText = `> ${msg}`;
+        term.prepend(div);
+    }
+
+    function evaluateRisk() {
+        const moist = parseFloat(document.getElementById('in_moist').value);
+        const ffa = parseFloat(document.getElementById('in_ffa').value);
+        if(moist > 0.5) { 
+            document.getElementById('moist-status').innerText = "HYDROLYSIS"; 
+            document.getElementById('moist-card').classList.add('critical'); 
+        } else { 
+            document.getElementById('moist-status').innerText = "NOMINAL"; 
+            document.getElementById('moist-card').classList.remove('critical'); 
+        }
+        if(ffa > 4.5) { 
+            document.getElementById('ffa-status').innerText = "NEUTRALIZATION"; 
+            document.getElementById('ffa-card').classList.add('critical'); 
+        } else { 
+            document.getElementById('ffa-status').innerText = "STABLE"; 
+            document.getElementById('ffa-card').classList.remove('critical'); 
+        }
+    }
+
+    function setColors(hex) {
+        const colors = new Float32Array(3500 * 3);
+        const color = new THREE.Color(hex);
+        for (let i = 0; i < 3500; i++) {
+            colors[i * 3] = color.r; colors[i * 3 + 1] = color.g; colors[i * 3 + 2] = color.b;
+        }
+        particles.geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    }
+
+    function triggerAgenticProcess() {
+        const moist = parseFloat(document.getElementById('in_moist').value);
+        const ffa = parseFloat(document.getElementById('in_ffa').value);
+        const sourceMod = parseFloat(document.getElementById('in_source').value);
+        
+        isSeparating = false;
+        document.getElementById('top-label').style.opacity = 0;
+        document.getElementById('bottom-label').style.opacity = 0;
+        logAgent("Performing Spectroscopic Analysis...");
+        
+        setTimeout(() => {
+            if(moist > 0.5) { 
+                logAgent("CRITICAL: High Moisture detected. HYDROLYSIS occurring.", "err");
+                setColors(0x3366ff); 
+            } else if(ffa > 4.5) { 
+                logAgent("CRITICAL: High FFA detected. NEUTRALIZATION occurring.", "err");
+                setColors(0x8B4513);
+            } else { 
+                logAgent("Purity check passed. Reactor engaged.");
+                setColors(0x1b3022); 
+            }
+
+            setTimeout(() => {
+                logAgent("Main reactor cycle processing...");
+                setColors(0xd4af37);
+                
+                setTimeout(() => {
+                    logAgent("Separation phase active...");
+                    isSeparating = true;
+                    document.getElementById('top-label').style.opacity = 1;
+                    document.getElementById('bottom-label').style.opacity = 1;
+                    
+                    let yield = (98.5 - (ffa * 2.5) - (moist * 10)) * sourceMod;
+                    let finalYield = Math.min(99.4, Math.max(0, yield)).toFixed(1);
+                    
+                    updateVisuals(finalYield);
+                }, 3000);
+            }, 2000);
+        }, 1000);
+    }
+
+    function updateVisuals(target) {
+        let current = 0;
+        const interval = setInterval(() => {
+            current += 0.9;
+            if (current >= target) {
+                current = target;
+                clearInterval(interval);
+                logAgent("Batch Complete. Efficiency: " + target + "%");
+                
+                // UPDATE TOP RIGHT HUD VALUES
+                document.getElementById('co2-val').innerText = (target * 2.1).toFixed(1);
+                document.getElementById('pay-val').innerText = "₹" + (target * 24).toFixed(0);
+            }
+            document.getElementById('yield-display').innerText = current.toFixed(1);
+        }, 30);
+    }
+
+    window.onload = init3D;
+</script>
+</body>
+</html>

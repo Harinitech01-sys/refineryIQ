@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Refinery IQ | Intelligent Biodiesel Dashboard</title>
+ 
+ <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600&family=Montserrat:wght@700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+ 
+ <style>
+ :root {
+ --bg-deep: #0a140d;
+ --forest-leaf: #24422e;
+ --forest-glow: #3a5a46;
+ --gold-premium: #f7e7ce;
+ --gold-deep: #d4af37;
+ /* BRIGHTER GLASS BOX: Increased opacity and brightness */
+ --glass-bg: rgba(255, 255, 255, 0.12); 
+ --glass-border: rgba(255, 255, 255, 0.25);
+ --text-main: #ffffff;
+ --transition-smooth: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+ }
+
+ * { margin: 0; padding: 0; box-sizing: border-box; }
+ 
+ body {
+ font-family: 'Inter', sans-serif;
+ background-color: var(--bg-deep);
+ color: var(--text-main);
+ height: 100vh;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ overflow: hidden;
+ position: relative;
+ }
+
+ /* --- BRIGHTER BACKGROUND: Reduced overlay opacity from 0.8 to 0.4 --- */
+ .bg-container {
+ position: fixed;
+ top: 0; left: 0; width: 100%; height: 100%;
+ background: linear-gradient(rgba(5, 10, 7, 0.4), rgba(5, 10, 7, 0.4)), 
+                url('https://images.unsplash.com/photo-1516937941344-00b4e0337589?q=80&w=2070');
+ background-size: cover;
+ background-position: center;
+ z-index: -2;
+ }
+
+ /* LEAF REMOVED FROM STYLES */
+
+ /* --- OVERLAYS --- */
+ #sim-overlay, #trading-overlay {
+ position: absolute;
+ inset: 0;
+ background: rgba(3, 7, 5, 0.92);
+ display: none; 
+ flex-direction: column;
+ justify-content: center;
+ align-items: center;
+ border-radius: 40px;
+ z-index: 10001;
+ padding: 40px;
+ text-align: center;
+ backdrop-filter: blur(20px);
+ }
+
+ .trading-title { font-family: 'Montserrat'; color: var(--gold-premium); letter-spacing: 3px; margin-bottom: 30px; text-transform: uppercase; }
+ .role-container { display: flex; gap: 20px; }
+ .role-btn { padding: 15px 40px; border: 1px solid var(--gold-premium); background: transparent; color: var(--gold-premium); border-radius: 12px; cursor: pointer; text-transform: uppercase; font-weight: 700; transition: var(--transition-smooth); }
+ .role-btn:hover { background: var(--gold-premium); color: #000; transform: translateY(-3px); }
+
+ .progress-bar-container { width: 100%; height: 3px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 20px; }
+ .progress-fill { width: 0%; height: 100%; background: var(--gold-premium); transition: width 0.1s linear; }
+
+ /* --- HEADER & NAV --- */
+ header { position: absolute; top: 0; width: 100%; padding: 30px 80px; display: flex; justify-content: space-between; align-items: center; z-index: 100; }
+ .logo { font-family: 'Montserrat'; font-weight: 700; font-size: 18px; letter-spacing: 6px; color: var(--gold-premium); text-transform: uppercase; }
+ nav { display: flex; gap: 45px; }
+ nav a { text-decoration: none; color: rgba(255,255,255,0.7); font-size: 10px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; transition: 0.3s; cursor: pointer; }
+ nav a:hover, nav a.active { color: var(--gold-premium); }
+
+ /* --- FORM & GLASS CARD: Enhanced backdrop and visibility --- */
+ .glass-card { background: var(--glass-bg); backdrop-filter: blur(25px); padding: 35px 50px; border-radius: 40px; border: 1px solid var(--glass-border); width: 100%; max-width: 520px; box-shadow: 0 40px 80px rgba(0,0,0,0.6); position: relative; z-index: 5; }
+ h2 { font-family: 'Montserrat'; margin-bottom: 25px; letter-spacing: 4px; text-transform: uppercase; color: var(--gold-premium); font-size: 0.85rem; text-align: center; }
+ 
+ .form-field { margin-bottom: 18px; }
+ label { font-size: 9px; text-transform: uppercase; letter-spacing: 3px; color: rgba(255,255,255,0.8); margin-bottom: 8px; display: block; }
+ 
+ input, select { width: 100%; background: rgba(0,0,0,0.6) !important; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 18px; padding: 14px 24px; color: #fff; font-family: 'JetBrains Mono', monospace; }
+ select option { background-color: #000 !important; color: #fff; }
+
+ .btn-predict { width: 100%; margin-top: 10px; padding: 20px; border-radius: 18px; border: none; background: linear-gradient(135deg, var(--gold-premium) 0%, var(--gold-deep) 100%); color: #050a07; font-weight: 700; text-transform: uppercase; cursor: pointer; }
+
+ /* ROBOT FAB */
+ .chatbot-fab { position: fixed; bottom: 40px; right: 40px; width: 75px; height: 75px; background: #000; border-radius: 50%; display: flex; justify-content: center; align-items: center; z-index: 1000; border: 2px solid var(--gold-premium); overflow: hidden; }
+ .chatbot-fab img { width: 100%; height: 100%; object-fit: cover; }
+
+ #system-loader { position: fixed; inset: 0; background: var(--bg-deep); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+ .loader-core { width: 40px; height: 40px; border: 2px solid rgba(247, 231, 206, 0.1); border-top: 2px solid var(--gold-premium); border-radius: 50%; animation: spin 1s infinite linear; }
+ @keyframes spin { to { transform: rotate(360deg); } }
+ </style>
+</head>
+<body>
+ <div class="bg-container"></div>
+
+ <div id="system-loader">
+    <div class="loader-core"></div>
+ </div>
+
+ <header>
+    <div class="logo">REFINERY | IQ</div>
+    <nav>
+        <a href="/predictor" class="active">Predictor</a>
+        <a onclick="toggleTrading()">Oil Trading</a>
+        <a href="/dashboard">Analytics</a>
+    </nav>
+ </header>
+
+ <main>
+ <section class="glass-card">
+    <div id="trading-overlay">
+        <h1 class="trading-title">Global Oil Trading</h1>
+        <p style="margin-bottom: 25px; font-size: 11px; letter-spacing: 1px; color: rgba(255,255,255,0.8); text-transform: uppercase;">Select Operation Role</p>
+        <div class="role-container">
+            <button class="role-btn" onclick="window.location.href='/seller'">Seller</button>
+            <button class="role-btn" onclick="window.location.href='/buyer'">Buyer</button>
+        </div>
+        <span style="margin-top: 30px; cursor: pointer; font-size: 10px; color: var(--gold-premium);" onclick="toggleTrading()">[ Back to Hub ]</span>
+    </div>
+
+    <div id="sim-overlay">
+        <div style="font-size: 10px; letter-spacing: 5px; color: var(--gold-premium); text-transform: uppercase; margin-bottom: 25px;">Analyzing Lipid Hub...</div>
+        <div class="progress-bar-container"><div class="progress-fill" id="progress-fill"></div></div>
+        <div id="sim-log" style="font-family: monospace; font-size: 11px; color: #10b981;">Initializing...</div>
+    </div>
+    
+    <h2>AI Prediction Engine</h2>
+    <form id="refinery-form" action="/predict" method="POST">
+        <div class="form-field">
+            <label>Lipid Resource</label>
+            <select id="oil-source" name="oil_type" required>
+                <option value="" disabled selected>Identify Source...</option>
+                <option value="veg">Vegetable Bio-Extract</option>
+                <option value="waste">Used Cooking Oil (UCO)</option>
+                <option value="animal">Animal Fat Grade</option>
+            </select>
+        </div>
+        <div class="form-field"><label>Volume (Liters)</label><input type="number" name="batch_size" required></div>
+        <div class="form-field"><label>Moisture Threshold (%)</label><input type="number" name="moisture" step="0.001" required></div>
+        <div class="form-field"><label>Free Fatty Acid (FFA)</label><input type="number" name="FFA" step="0.001" required></div>
+        <div class="form-field"><label>Impurity Level (%)</label><input type="number" name="impurity" step="0.001" required></div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div class="form-field"><label>Oil Price</label><input type="number" name="oil_price" required></div>
+            <div class="form-field"><label>Methanol</label><input type="number" name="methanol_price" required></div>
+        </div>
+        <button type="submit" class="btn-predict">Analyze & Predict</button>
+    </form>
+ </section>
+ </main>
+
+ <a href="/chatbot" class="chatbot-fab"><img src="/static/images/robot.jpeg" alt="AI Robot"></a>
+
+ <script>
+ // 1. INSTANT TRADING TOGGLE
+ function toggleTrading() {
+    const tradingOverlay = document.getElementById('trading-overlay');
+    const simOverlay = document.getElementById('sim-overlay');
+
+    simOverlay.style.display = 'none';
+
+    if (tradingOverlay.style.display === 'flex') {
+        tradingOverlay.style.display = 'none';
+    } else {
+        tradingOverlay.style.display = 'flex';
+    }
+ }
+
+ // LEAF GENERATION REMOVED
+
+ // 3. LOADER
+ window.addEventListener('load', () => {
+    setTimeout(() => { 
+        const loader = document.getElementById('system-loader');
+        if(loader) {
+            loader.style.opacity = '0'; 
+            setTimeout(() => { loader.remove(); }, 500); 
+        }
+    }, 500);
+ });
+
+ // 4. FORM PREDICTION SIMULATION
+ const refineryForm = document.getElementById('refinery-form');
+ refineryForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    document.getElementById('sim-overlay').style.display = 'flex';
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += 10;
+        document.getElementById('progress-fill').style.width = progress + '%';
+        if (progress >= 100) { 
+            clearInterval(interval); 
+            setTimeout(() => { refineryForm.submit(); }, 200); 
+        }
+    }, 50);
+ });
+ </script>
+</body>
+</html>

@@ -1,0 +1,185 @@
+/* 🌑 DARK BACKGROUND FOR CHATBOT PAGE */
+body {
+  background: linear-gradient(270deg, #0f2027, #203a43, #2c5364);
+  color: white;
+}
+
+/* 🧩 CHATBOT LAYOUT */
+.main-container {
+  display: flex;
+  height: 100vh;
+  align-items: center;
+  justify-content: space-around;
+}
+
+/* 🤖 ROBOT */
+#robot {
+  width: 300px;
+  height: 400px;
+}
+
+/* 💬 CHAT BOX */
+.chat-container {
+  width: 400px;
+  height: 500px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  box-shadow: 0 0 20px rgba(0,255,150,0.3);
+}
+
+/* CHAT SCROLL */
+#chat {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* 🤖 BOT MESSAGE */
+.bot {
+  background: rgba(0,255,150,0.2);
+  padding: 10px;
+  margin: 5px;
+  border-radius: 10px;
+}
+
+/* 👤 USER MESSAGE */
+.user {
+  background: rgba(0,150,255,0.2);
+  padding: 10px;
+  margin: 5px;
+  border-radius: 10px;
+  text-align: right;
+}
+
+/* INPUT */
+.input-box {
+  display: flex;
+}
+
+.input-box input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+}
+
+.input-box button {
+  padding: 10px;
+  border: none;
+  background: #00ff99;
+  border-radius: 10px;
+  margin-left: 5px;
+  cursor: pointer;
+}
+
+/* 👤 AVATAR */
+.user-avatar img {
+  width: 120px;
+  border-radius: 50%;
+}
+/* 🤖 ROBOT GLOW AURA */
+#robot {
+  position: relative;
+}
+
+#robot::before {
+  content: "";
+  position: absolute;
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(0,255,150,0.4), transparent 70%);
+  filter: blur(40px);
+  z-index: -1;
+  top: 20px;
+  left: -20px;
+  animation: pulseGlow 3s infinite alternate;
+}
+
+@keyframes pulseGlow {
+  from { opacity: 0.5; }
+  to { opacity: 1; }
+}
+
+/* 🌑 DARK BACKGROUND */
+body {
+  background: linear-gradient(270deg, #0f2027, #203a43, #2c5364);
+  color: white;
+}
+
+/* LAYOUT */
+.main-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  gap: 80px;
+}
+
+/* CHAT */
+.chat-container {
+  width: 400px;
+  height: 500px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  box-shadow: 0 0 25px rgba(0,255,150,0.3);
+}
+
+#chat {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.bot {
+  background: rgba(0,255,150,0.2);
+  padding: 10px;
+  margin: 5px;
+  border-radius: 10px;
+}
+
+.user {
+  background: rgba(0,150,255,0.2);
+  padding: 10px;
+  margin: 5px;
+  border-radius: 10px;
+  text-align: right;
+}
+
+/* INPUT */
+.input-box {
+  display: flex;
+  gap: 5px;
+}
+
+/* SUGGESTIONS */
+.suggestions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+/* 🧍 CHARACTER */
+.assistant-character {
+  position: fixed;
+  right: 40px;
+  bottom: 0;
+}
+
+.assistant-character img {
+  height: 420px;
+  animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 25px rgba(0,255,150,0.7));
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+}

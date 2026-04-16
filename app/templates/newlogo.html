@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refinery IQ | Intelligent Biodiesel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gold: #f7e7ce; 
+            --bright-gold: #ffeb3b;
+            --glass: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.3);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html { height: 100%; width: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background-color: #0a0a0a; }
+        
+        .viewport {
+            height: 100vh; width: 100%;
+            /* BRIGHTER OVERLAY: Changed from 0.7 to 0.3 for maximum clarity */
+            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), 
+                        url("{{ url_for('static', filename='images/newlogo.png') }}");
+            background-size: cover; 
+            background-position: center;
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        .logo-box { 
+            display: flex; 
+            align-items: center; 
+            gap: 20px; 
+            opacity: 0; 
+            animation: fadeInLogo 2s ease-out forwards;
+            /* Added text shadow for readability on brighter backgrounds */
+            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .refinery { color: #ffffff; font-weight: 200; font-size: 3rem; letter-spacing: 15px; text-transform: uppercase; }
+        
+        /* BRIGHTER DIVIDER with glow */
+        .divider { 
+            height: 50px; 
+            width: 2px; 
+            background: var(--primary-gold); 
+            transform: scaleY(1.2); 
+            box-shadow: 0 0 20px rgba(247, 231, 206, 0.8);
+        }
+
+        .iq { color: #ffffff; font-weight: 700; font-size: 4rem; letter-spacing: 2px; }
+
+        .footer-typewriter { position: absolute; bottom: 120px; width: 100%; text-align: center; }
+        
+        #typing-text { 
+            font-family: 'JetBrains Mono', monospace; 
+            color: var(--primary-gold); 
+            font-size: 0.95rem; 
+            letter-spacing: 4px; 
+            text-transform: uppercase; 
+            font-weight: 700;
+            text-shadow: 0 0 10px rgba(247, 231, 206, 0.3);
+        }
+
+        .cursor { display: inline-block; width: 8px; height: 1.2rem; background-color: var(--primary-gold); margin-left: 5px; animation: blink 0.8s infinite; vertical-align: middle; }
+
+        .next-btn {
+            position: absolute; bottom: 40px; width: 65px; height: 65px; border-radius: 50%;
+            background: var(--glass); 
+            border: 1px solid var(--glass-border); 
+            backdrop-filter: blur(8px);
+            display: flex; justify-content: center; align-items: center; cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
+            color: white; 
+            text-decoration: none; 
+            animation: bounce 3s infinite;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+
+        .next-btn:hover { 
+            background: rgba(255, 255, 255, 0.25); 
+            border-color: var(--primary-gold); 
+            transform: translateY(-8px); 
+            box-shadow: 0 0 25px var(--primary-gold);
+        }
+
+        @keyframes fadeInLogo { from { opacity: 0; transform: scale(0.95); letter-spacing: 25px; } to { opacity: 1; transform: scale(1); letter-spacing: 15px; } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-12px);} 60% {transform: translateY(-6px);} }
+        .fade-out { opacity: 0 !important; }
+    </style>
+</head>
+<body>
+    <div class="viewport" id="landingPage">
+        <div class="logo-box">
+            <h1 class="refinery">Refinery</h1>
+            <div class="divider"></div>
+            <h1 class="iq">IQ</h1>
+        </div>
+        <div class="footer-typewriter">
+            <span id="typing-text"></span><span class="cursor"></span>
+        </div>
+        <a href="/predictor" class="next-btn" id="manualNext">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <polyline points="19 12 12 19 5 12"></polyline>
+            </svg>
+        </a>
+    </div>
+
+    <script>
+        const message = "WELCOME TO THE AI BRAIN FOR SMART BIODIESEL PRODUCTION !";
+        const typingSpeed = 50;
+        const delayAfterDone = 2500;
+        let charIndex = 0;
+        const textElement = document.getElementById("typing-text");
+        const viewport = document.getElementById("landingPage");
+
+        function startTypewriter() {
+            if (charIndex < message.length) {
+                textElement.textContent += message.charAt(charIndex);
+                charIndex++;
+                setTimeout(startTypewriter, typingSpeed);
+            } else {
+                setTimeout(goToNextPage, delayAfterDone);
+            }
+        }
+
+        function goToNextPage() {
+            viewport.classList.add("fade-out");
+            setTimeout(() => {
+                window.location.href = "/predictor"; 
+            }, 1000);
+        }
+
+        document.getElementById("manualNext").addEventListener("click", function(e) {
+            e.preventDefault();
+            goToNextPage();
+        });
+
+        window.onload = startTypewriter;
+    </script>
+</body>
+</html>
