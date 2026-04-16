@@ -115,7 +115,8 @@ def chat_query():
     user_msg = data.get('message', '')
 
     try:
-        if not search_model or not kb_embeddings:
+        # ✅ FIXED SAFE CHECK (NO LOGIC CHANGE)
+        if search_model is None or kb_embeddings is None:
             return jsonify({"answer": "AI module not ready."})
 
         user_emb = search_model.encode(user_msg, convert_to_tensor=True)
